@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>As nossas memórias 💖</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      background-color: #1a1a1a;
+      font-family: 'Segoe UI', sans-serif;
+      color: white;
+    }
+
+    /* Container que abriga ambos os ecrãs lado a lado */
+    #app-container {
+      display: flex;
+      width: 200vw; /* duas telas lado a lado */
+      height: 100vh;
+      transform: translateX(0);
+      transition: transform 1s ease-in-out;
+    }
+
+    /* Cada ecrã ocupa 100% da largura da viewport */
+    .screen {
+      width: 100vw;
+      height: 100vh;
+      box-sizing: border-box;
+      overflow: hidden;
+      padding-bottom: 80px; /* espaço para áudio */
+      position: relative;
+    }
+
+    /* Primeiro ecrã (seleção de fotos) */
+    #first-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      /* Gradiente de amarelo para preto */
+      background: linear-gradient(to bottom, #f5c732, #1a1a1a);
+    }
+
+    h1 {
+      margin: 20px;
+    }
+
+    .gallery {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      padding: 20px;
+    }
+
+    .photo {
+      border: 3px solid transparent;
+      border-radius: 10px;
+      overflow: hidden;
+      transition: transform 0.2s, border 0.3s;
+      cursor: pointer;
+    }
+
+    .photo img {
+      width: 200px;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .photo.selected {
+      border-color: #f5c732;
+      transform: scale(1.05);
+    }
+
+    #final-msg {
+      margin-top: 20px;
+      font-size: 1.5em;
+      color: #fde991;
+      display: none;
+    }
+
+    #countdown {
+      margin-top: 20px;
+      font-size: 3em;
+      color: #f5c732;
+      display: none;
+    }
+
+    button {
+      margin-top: 30px;
+      padding: 10px 20px;
+      background: #f5c732;
+      border: none;
+      border-radius: 15px;
+      color: #1a1a1a;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #ffed85;
+    }
+
+    /* Segundo ecrã (draggable + bounce + jogo) */
+    #second-screen {
+      background-color: #000;
+    }
+
+    .floating {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .floating:active {
+      cursor: grabbing;
+    }
+
+    /* Círculo de jogo (centralizado) */
+    #game-circle {
+      position: absolute;
+      border: 2px solid #fde991;
+      border-radius: 50%;
+      box-sizing: border-box;
+      pointer-events: none;
+    }
+
+    /* Contador de pontos no fundo */
+    #score-display {
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.5em;
+      color: #fde991;
+      z-index: 1000;
+    }
+
+    /* Temporizador do jogo */
+    #game-timer {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.5em;
+      color: #fde991;
+      z-index: 1000;
+    }
+
+    /* Mensagem de fim de jogo */
+    #game-over {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2em;
+      color: #f5c732;
+      background-color: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      border-radius: 10px;
+      display: none;
+      z-index: 1000;
+      text-align: center;
+    }
+
+    /* Controles de áudio fixos no canto inferior esquerdo */
+    #audio-controls {
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 1000;
+    }
+
+    #btn-toggle-audio {
+      padding: 8px 12px;
+      background: #333;
+      border: 1px solid #fcb32b;
+      border-radius: 5px;
+      color: #fff;
+      font-size: 0.9em;
+      cursor: pointer;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+
+    #btn-toggle-audio:hover {
+      opacity: 1;
+    }
+
+    #volume-slider {
+      width: 100px;
+      accent-color: #f5c732;
+    }
+  </style>
+</head>
+<body>
+  <div id="app-container">
+    <!-- Primeiro ecrã: seleção de fotografias -->
+    <div id="first-screen" class="screen">
+      <h1>Escolhe as tuas fotos favoritas 💞</h1>
+
+      <div class="gallery">
+        <div class="photo"><img src="img1.jpg" alt="Foto 1" /></div>
+        <div class="photo"><img src="img2.jpg" alt="Foto 2" /></div>
+        <div class="photo"><img src="img3.jpg" alt="Foto 3" /></div>
+        <div class="photo"><img src="img4.jpg" alt="Foto 4" /></div>
+        <div class="photo"><img src="img5.jpg" alt="Foto 5" /></div>
+        <div class="photo"><img src="img6.jpg" alt="Foto 6" /></div>
+        <div class="photo"><img src="img7.jpg" alt="Foto 7" /></div>
+        <div class="photo"><img src="img8.jpg" alt="Foto 8" /></div>
+      </div>
+
+      <button onclick="iniciarContagem()">Finalizar Escolha</button>
+      <div id="final-msg"></div>
+      <div id="countdown"></div>
+    </div>
+
+    <!-- Segundo ecrã: imagens a flutuar e com bounce, mais o círculo de jogo -->
+    <div id="second-screen" class="screen">
+      <h1 id="game-title">Controla a mimoca!</h1>
+      <canvas id="gameCanvas" width="800" height="600"></canvas>
+      <div id="game-circle"></div>
+      <div id="score-display">Pontos: 0</div>
+      <div id="game-timer">Tempo: 25s</div>
+      <div id="game-over"></div>
+    </div>
+  </div>
+
+  <!-- Áudio que inicia automaticamente ao carregar a página -->
+  <audio id="surpresa-audio" src="surpresa.mp3" preload="auto" autoplay></audio>
+
+  <!-- Controles de áudio fixos -->
+  <div id="audio-controls">
+    <button id="btn-toggle-audio" onclick="toggleAudio()">Desligar Música</button>
+    <input id="volume-slider" type="range" min="0" max="1" step="0.01" value="1" />
+  </div>
+
+  <script>
+    const photos = document.querySelectorAll('.photo');
+    const finalMsg = document.getElementById('final-msg');
+    const countdownEl = document.getElementById('countdown');
+    const audio = document.getElementById('surpresa-audio');
+    const btnToggle = document.getElementById('btn-toggle-audio');
+    const volumeSlider = document.getElementById('volume-slider');
+    const appContainer = document.getElementById('app-container');
+    const secondScreen = document.getElementById('second-screen');
+    const gameCircle = document.getElementById('game-circle');
+    const scoreDisplay = document.getElementById('score-display');
+    const gameTimer = document.getElementById('game-timer');
+    const gameOver = document.getElementById('game-over');
+    let countdownInterval;
+    let scoreInterval;
+    let gameTimeInterval;
+    let score = 0;
+    let gameTime = 25;
+    const MAX_SCORE = 2000
+
+    // Para manter referência ao meme atualmente a arrastar
+    let draggingItem = null;
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
+
+    // Quando a página carregar, tenta tocar o áudio e dimensionar o círculo
+    window.addEventListener('load', () => {
+      audio.volume = volumeSlider.value;
+      audio.play().catch(() => {
+        document.body.addEventListener('click', () => audio.play(), { once: true });
+      });
+      dimensionarCirculo();
+      window.addEventListener('resize', dimensionarCirculo);
+    });
+
+    // Atualizar volume quando o slider muda
+    volumeSlider.addEventListener('input', () => {
+      audio.volume = volumeSlider.value;
+    });
+
+    photos.forEach(photo => {
+      photo.addEventListener('click', () => {
+        photo.classList.toggle('selected');
+      });
+    });
+
+    function iniciarContagem() {
+      const selecionadas = document.querySelectorAll('.photo.selected').length;
+      let msg = "";
+
+      if (selecionadas === 0) {
+        msg = "Ohhh Mimoca, não escolheste nenhuma....;"
+      } else if (selecionadas <= 2) {
+        msg = "Tens olho para os momentos mais especiais 💗";
+      } else if (selecionadas <= 4) {
+        msg = "Estas fotos contam bem a nossa história 🥰";
+      } else {
+        msg = "Eu percebo... A maioria dos nossos momentos é especial!";
+      }
+
+      finalMsg.textContent = msg;
+      finalMsg.style.display = "block";
+
+      // Iniciar contagem decrescente de 10 segundos
+      let count = 10;
+      countdownEl.textContent = count;
+      countdownEl.style.display = "block";
+
+      countdownInterval = setInterval(() => {
+        count--;
+        if (count > 0) {
+          countdownEl.textContent = count;
+        } else {
+          clearInterval(countdownInterval);
+          slideToSecondScreen();
+        }
+      }, 1000);
+    }
+
+    function slideToSecondScreen() {
+      // Traduz o container para a esquerda em uma "viewport"
+      appContainer.style.transform = "translateX(-100vw)";
+      criarFloatingMemes();
+      startGame();
+      requestAnimationFrame(animarMemes); // inicia loop de animação
+    }
+
+    function toggleAudio() {
+      if (audio.paused) {
+        audio.play();
+        btnToggle.textContent = "Desligar Música";
+      } else {
+        audio.pause();
+        btnToggle.textContent = "Ligar Música";
+      }
+    }
+
+    function dimensionarCirculo() {
+      const diameter = window.innerHeight / 2;
+      gameCircle.style.width = diameter + "px";
+      gameCircle.style.height = diameter + "px";
+      gameCircle.style.left = (window.innerWidth / 2 - diameter / 2) + "px";
+      gameCircle.style.top = (window.innerHeight / 2 - diameter / 2) + "px";
+    }
+
+    function criarFloatingMemes() {
+      // Adiciona 8 imagens diferentes: meme1.png, meme2.png, ..., meme8.png
+      for (let i = 1; i <= 8; i++) {
+        const img = document.createElement("img");
+        img.src = `meme${i}.png`;
+        img.className = "floating";
+        // Posição aleatória inicial dentro da segunda tela
+        const x = Math.random() * (window.innerWidth - 100);
+        const y = Math.random() * (window.innerHeight - 100);
+        img.style.left = x + "px";
+        img.style.top = y + "px";
+        // Velocidade inicial aleatória
+        img.dataset.vx = ((Math.random() * 4) - 2).toString();
+        img.dataset.vy = ((Math.random() * 4) - 2).toString();
+
+        // Adiciona eventos de drag diretamente no elemento
+        img.addEventListener("mousedown", iniciarDrag);
+        img.addEventListener("mouseup", terminarDrag);
+
+        secondScreen.appendChild(img);
+      }
+      // Adiciona listener único para mousemove na janela
+      window.addEventListener("mousemove", arrastar);
+    }
+
+    function animarMemes() {
+      const memes = document.querySelectorAll(".floating");
+      memes.forEach(el => {
+        // Se não estiver a arrastar, aplica física de bounce
+        if (el !== draggingItem) {
+          let x = parseFloat(el.style.left);
+          let y = parseFloat(el.style.top);
+          let vx = parseFloat(el.dataset.vx);
+          let vy = parseFloat(el.dataset.vy);
+
+          x += vx;
+          y += vy;
+
+          // Colisões nas bordas
+          if (x <= 0) {
+            x = 0;
+            vx = -vx;
+          }
+          if (x + 100 >= window.innerWidth) {
+            x = window.innerWidth - 100;
+            vx = -vx;
+          }
+          if (y <= 0) {
+            y = 0;
+            vy = -vy;
+          }
+          if (y + 100 >= window.innerHeight) {
+            y = window.innerHeight - 100;
+            vy = -vy;
+          }
+
+          el.style.left = x + "px";
+          el.style.top = y + "px";
+          el.dataset.vx = vx.toString();
+          el.dataset.vy = vy.toString();
+        }
+      });
+      requestAnimationFrame(animarMemes);
+    }
+
+    function iniciarDrag(e) {
+      draggingItem = e.target;
+      // Calcula offset para manter posição relativa ao cursor
+      const x = parseFloat(draggingItem.style.left);
+      const y = parseFloat(draggingItem.style.top);
+      dragOffsetX = e.clientX - x;
+      dragOffsetY = e.clientY - y;
+      // Define velocidades para zero enquanto arrasta
+      draggingItem.dataset.vx = "0";
+      draggingItem.dataset.vy = "0";
+      e.preventDefault();
+    }
+
+    function arrastar(e) {
+      if (draggingItem) {
+        let newX = e.clientX - dragOffsetX;
+        let newY = e.clientY - dragOffsetY;
+        // Mantém dentro dos limites
+        newX = Math.max(0, Math.min(newX, window.innerWidth - 100));
+        newY = Math.max(0, Math.min(newY, window.innerHeight - 100));
+        draggingItem.style.left = newX + "px";
+        draggingItem.style.top = newY + "px";
+      }
+    }
+
+    function terminarDrag(e) {
+      if (draggingItem) {
+        // Ao soltar, atribui nova velocidade aleatória
+        draggingItem.dataset.vx = ((Math.random() * 5) - 2).toString();
+        draggingItem.dataset.vy = ((Math.random() * 5) - 2).toString();
+        draggingItem = null;
+      }
+    }
+
+    function startGame() {
+      score = 0;
+      gameTime = 25;
+      scoreDisplay.textContent = "Pontos: " + score;
+      gameTimer.textContent = "Tempo: " + gameTime + "s";
+      
+      // Inicia a contagem de pontos
+      scoreInterval = setInterval(updateScore, 500);
+      
+      // Inicia o temporizador do jogo
+      gameTimeInterval = setInterval(updateGameTime, 1000);
+    }
+
+    function updateScore() {
+      const memes = document.querySelectorAll(".floating");
+      let diameter = window.innerHeight / 2;
+      let radius = diameter / 2;
+      let centerX = window.innerWidth / 2;
+      let centerY = window.innerHeight / 2;
+      
+      memes.forEach(el => {
+        let x = parseFloat(el.style.left) + 50; // centro do meme
+        let y = parseFloat(el.style.top) + 50;
+        let dx = x - centerX;
+        let dy = y - centerY;
+        if (dx*dx + dy*dy <= radius*radius) {
+          score += 5;
+        }
+      });
+      
+      // Limita a pontuação máxima
+      if (score > MAX_SCORE) {
+        score = MAX_SCORE;
+      }
+      
+      scoreDisplay.textContent = "Pontos: " + score;
+    }
+
+    function updateGameTime() {
+      gameTime--;
+      gameTimer.textContent = "Tempo: " + gameTime + "s";
+      
+      if (gameTime <= 0) {
+        endGame();
+      }
+    }
+
+    function endGame() {
+      // Para os intervalos
+      clearInterval(scoreInterval);
+      clearInterval(gameTimeInterval);
+      
+      // Mostra mensagem de fim de jogo
+      let message;
+      if (score >= MAX_SCORE) {
+        message = "Parabéns Mimoca! 🎉<br>Conseguiste a pontuação máxima!<br>Pontos: " + score;
+      } else if (score >= MAX_SCORE * 0.7) {
+        message = "Bom trabalho! 😊<br>Quase conseguiste a pontuação máxima!<br>Pontos: " + score;
+      } else if (score >= MAX_SCORE * 0.4) {
+        message = "Boa tentativa! 😉<br>Pontos: " + score;
+      } else {
+        message = "Podes fazer melhor! 😘<br>Pontos: " + score;
+      }
+      
+      gameOver.innerHTML = message;
+      gameOver.style.display = "block";
+    }
+  </script>
+</body>
+</html>
