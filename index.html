@@ -107,7 +107,16 @@
 
     /* Segundo ecrã (draggable + bounce + jogo) */
     #second-screen {
-      background-color: #000;
+      /* EFEITO 5: Gradiente Animado */
+      background: linear-gradient(45deg, #ff9a9e, #fad0c4, #fbc2eb, #a6c1ee);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     .floating {
@@ -262,7 +271,7 @@
     let gameTimeInterval;
     let score = 0;
     let gameTime = 25;
-    const MAX_SCORE = 2000
+    const MAX_SCORE = 1000;
 
     // Para manter referência ao meme atualmente a arrastar
     let draggingItem = null;
@@ -495,10 +504,28 @@
       }
     }
 
+    // Função para lançar confetti
+    function launchConfetti() {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js';
+      script.onload = () => {
+        confetti({
+          particleCount: 150,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff']
+        });
+      };
+      document.body.appendChild(script);
+    }
+
     function endGame() {
       // Para os intervalos
       clearInterval(scoreInterval);
       clearInterval(gameTimeInterval);
+      
+      // Lança confetti
+      launchConfetti();
       
       // Mostra mensagem de fim de jogo
       let message;
